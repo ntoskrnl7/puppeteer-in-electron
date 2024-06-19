@@ -1,14 +1,9 @@
 import getPort from "get-port";
 import http from "http";
 import retry from "async-retry";
-import {v4} from "uuid";
-
-type App = import("electron").App;
-type BrowserWindow = import("electron").BrowserWindow;
-type BrowserView = import("electron").BrowserView;
-type puppeteer = typeof import("puppeteer-core");
-type Browser = import("puppeteer-core").Browser;
-type Page = import("puppeteer-core").Page;
+import { v4 } from "uuid";
+import { App, BrowserWindow, BrowserView} from 'electron';
+import { PuppeteerNode, Browser, Page } from 'puppeteer-core';
 
 const readJson = async (port: string): Promise<any> => new Promise((resolve, reject) => {
   let json = "";
@@ -54,7 +49,7 @@ export const initialize = async (app: App, port = 0): Promise<void> => {
     throw new Error("The electron application is already listening on a port. Double `initialize`?");
   }
 
-  const actualPort = port === 0 ? await getPort({host: "127.0.0.1"}) : port;
+  const actualPort = port === 0 ? await getPort({ host: "127.0.0.1" }) : port;
   app.commandLine.appendSwitch(
     "remote-debugging-port",
     `${actualPort}`
@@ -67,7 +62,7 @@ export const initialize = async (app: App, port = 0): Promise<void> => {
     app.getVersion().split(".")[0],
     10
   );
-    // NetworkService crashes in electron 6.
+  // NetworkService crashes in electron 6.
   if (electronMajor >= 7) {
     app.commandLine.appendSwitch(
       "enable-features",
@@ -83,7 +78,7 @@ export const initialize = async (app: App, port = 0): Promise<void> => {
  * @param {puppeteer} puppeteer The imported puppeteer namespace.
  * @returns {Promise<Browser>} An object containing the puppeteer browser, the port, and json received from DevTools.
  */
-export const connect = async (app: App, puppeteer: puppeteer): Promise<Browser> => {
+export const connect = async (app: App, puppeteer: PuppeteerNode): Promise<Browser> => {
   if (!puppeteer) {
     throw new Error("The parameter 'puppeteer' was not passed in.");
   }
